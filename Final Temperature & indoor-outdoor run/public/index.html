@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <!-- Adding a title to the page -->
+    <title>The Relationship Between the Temperature and Going on an Indoor or Outdoor Run</title>
+    <!-- Adding the chart js files --> 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0/dist/Chart.min.js"></script>
+    <!-- Adding a font type -->
+    <link href="https://fonts.googleapis.com/css?family=DM+Serif+Text|Josefin+Slab&display=swap" rel="stylesheet"> 
+    <!-- Adding a stylesheet -->
+    <link rel="stylesheet" type="text/css" href="css.css">
+</head>
+
+<body>
+  <!-- Adding a heading to the page -->
+    <b><p style="font-size:28px; color:rgba(84, 207, 47, 0.84); font-family: 'Josefin Slab', serif; text-align:center">The Relationship Between the Temperature and Going on an Indoor or Outdoor Run</b></p> 
+
+
+  <!-- Adding a new style layout for the text, slider and button -->
+    <div style="text-align: center; font-family: 'Josefin Slab', serif;, serif;">
+        <!-- Adding text to explain the concept and my idea -->
+        <p>I am interested in looking into whether there is a relationship between the temperature and going on an indoor or outdoor run. In order to log data, you need to: 
+        <p>1.  Wait for the location of your latitude and longitude to load.
+        <p>2.  Wait for the temperature to load.
+        <p>3.  Drag the slider to 0 (Indoor Run) or 1 (Outdoor Run) 
+        <p>4.  Press submit to log your data.</p>
+
+        <!-- Adding text above the submit button -->
+        <br><p><label for="running">Did you go on an indoor (0) or outdoor (1) run?</label> <br>
+
+          <!-- Adding a slider. I got this peice of code from (https://www.w3schools.com/howto/howto_js_rangeslider.asp) -->
+          <div class="slidecontainer">
+            <input type="range" class="slider" id="running" min="0" max="1" value="0" oninput="sliderChange(this.value)"> 
+            <output id="sliderVal"> </output> <br>
+
+          <!-- Adding a button to add data to the chart I got this peice of code from (https://www.w3schools.com/css/css3_buttons.asp) -->
+            <br ><button class="button button1"> <a style="font-family: 'Josefin Slab', serif;" class="btn-group" id="submit">Submit</a> </button>
+
+          <!-- Adding the text for the latitdue, longitude and Temperature -->
+            <br> <br> Latitude: <span id="latitude"></span>&deg;<br />
+            Longitude: <span id="longitude"></span>&deg; <br />
+            Temperature: <span id="weather"></span>&deg;C <br />
+    </div> 
+
+    <!-- Adding lables for the two datasets -->
+    <b><p style="font-size:18px; color:rgba(236, 85, 87, 0.83); font-family: 'Josefin Slab', serif; text-align:center">Indoor Run</p></b>
+    <b><p style="font-size:18px; color:rgba(66, 201, 255, 0.78); font-family: 'Josefin Slab', serif; text-align:center">Outdoor Run</p></b>
+
+    <p> <!-- Creating a canvas for the chart -->
+        <canvas id="chart" width="200" height="70"></canvas>
+    </p>
+
+    <div>
+<script type="text/javascript"> // Adding padding to the chart. I got this peice of code from (https://stackoverflow.com/questions/9695468/changing-top-padding-in-javascript)
+    document.body.style.paddingLeft = "100px"; // Creating padding either side of the chart.
+    document.body.style.paddingRight = "100px"; // Creating padding either side of the chart.
+    document.body.style.paddingBottom = "25px"; // Creating a padding at the bottom of the chart
+
+    let xVals = []; // Creating a global variable for the array of the x values
+    let yVals = []; // Creating a global variable for the array of the y values
+    let bgCols = []; // Creating a global variable for the array of the y values
+    let lat, lon; // Creating a global variable for the latitude and longitude
+    let weather; // Creating a global variable for the weather
+
+    function sliderChange(val) { // Creating a slider
+        document.getElementById('sliderVal').innerHTML = val;
+    }
+
+    chartIt(); // Calling the chartIt function to open the chart when the page loads
+
+    const buttonSubmit = document.getElementById('submit'); // Creating the button to submit whether the user goes on an indoor or outdoor run
+    buttonSubmit.addEventListener('click', async event => { // When the button is clicked it will submit the data onto the chart
+        const running = document.getElementById('running').value; // Running (0 or 1) is the data being submitted
+        
+        const data = { running, weather }; // Sedning data to the server side
+        const options = { // posting the data into a JSOn e.g the database.db
+            method: 'POST', // Posting the data
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        };
+        const response = await fetch('/api', options);
+        const json = await response.json();
+
+        chartIt(); // Calling the chartIt function to open the chart when the page loads
+    });
+
+    if ('geolocation' in navigator) { // finding the geolocation of the user
+        console.log('geolocation available'); // console logging whether geolocation available or not 
+        navigator.geolocation.getCurrentPosition(async position => {
+            lat = position.coords.latitude; // Getting the position of the latitude
+            lon = position.coords.longitude; // Getting the position of the longitude
+            document.getElementById('latitude').textContent = lat;
+            document.getElementById('longitude').textContent = lon;
+            getWeather(); // Calling the getWeather function
+        });
+    } else {
+        console.log('geolocation not available'); // console logging if the geolocation is not available
+    }
+ 
+    async function getWeather() { // Creating a function called getWeather to return the Temperature
+        url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=51f152c9b5b4be6011dccd92a1291b0b`; // Using Open Weather Map API (https://openweathermap.org/api) to get the temperature data
+        const response = await fetch(url); // Using fetch to get the URL
+        const weatherData = await response.json(); // 
+        weather = weatherData.main.temp; // Getting the temperature from the data
+        document.getElementById('weather').textContent = weather;
+    }
+
+    async function chartIt() { // Creating a function called chartIt 
+        const response = await fetch('/api'); // Using fetch to get the api
+        const data = await response.json();
+        console.log(data); // console logging the data to check we are recieving the data
+
+        // Creating a for loop which takes the data from each location in the array and puts in into our new empty array
+        for (let i = 0; i < data.length; i++) {
+            xVals[i] = new Date(data[i].timestamp).toLocaleString(); // Putting the date and time onto the X axis
+            yVals[i] = data[i].weather; // Putting the temperature onto the Y axis
+
+            if (data[i].running == 0) { // Creating an if function. If the data that is logged is equal to 0 then the dot plotted should be red and if the data logged is equal to 1 then the dot plotted should be blue
+            console.log("inside"); // Console logging whether the data is appearing or not. If the data get logged "inside will appear in the console log"
+            bgCols[i] = 'rgba(236, 85, 87, 0.83)'; // Red (for warm weather) if the data is 0 
+            } else {
+            console.log("outside"); // Console logging whether the data is appearing or not
+            bgCols[i] = 'rgba(66, 201, 255, 0.78)'; // Blue (for cold weather) if the data is 1
+            }
+        }
+
+        // Drawing the chart. I got this peice of code from (https://www.chartjs.org)
+        const ctx = document.getElementById('chart').getContext('2d');
+        const myChart = new Chart(ctx, {
+            type: 'line', // Creating a line chart
+            data: {
+                labels: xVals, // Data for the x values
+                datasets: [{
+                    label: 'Indoor Run', // Creating a label for the dataset 
+                    data: yVals, // Data for the y values
+                    fill: false, // No fill
+                    backgroundColor: bgCols, // adding the background colour to the point
+                    borderColor: bgCols, // adding the border colour to the point
+                }]
+            }, 
+            options: {
+              showLines: false, // Getting rid of the lines from the chart
+              legend: {
+                display: false // Getting rid of the dataset label 
+            }
+        }
+    });
+}
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,64 @@
+/* Adding a background image */
+body {
+  background-image: url("Background.png"); /* Adding the background image */
+  background-size:cover; /* Chaning the size of the image ro fit the background */
+}
+
+/* Styling the Slider*/
+.slider {
+  -webkit-appearance: none;
+  width: 20%; /* Changing the width of the slider */
+  height: 15px; /* Changing the height of the slider */
+  border-radius: 5px;  
+  background: #FFFFFF; /* Chaning the background colour of the slider */
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider::-webkit-slider-thumb { /* Chaning the slider button */
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%; 
+  background: #54CF2F; /* Chaning the button colour */
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb { 
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: #54CF2F;
+  cursor: pointer;
+}
+
+
+/* Styling the Button*/
+.button {
+  background-color: #54CF2F; /* Green */
+  border: none;
+  color: white;
+  padding: 10px 10px;
+  text-align: center; /* Aligning the slider to the center */
+  text-decoration: none;
+  display: inline-block;
+  font-size: 12px; /* Chaning the font size */
+  margin: 4px 2px; /* Adding a margin to the text in the button */
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+
+.button1 { /* Chaning the border */
+  background-color: white; 
+  color: black; 
+  border: 2px solid #54CF2F; 
+}
+
+.button1:hover { /* Changing the background colour to white when the button isnt beinng hovered over */
+  background-color: #54CF2F;
+  color: white;
+}
